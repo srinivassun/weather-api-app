@@ -1,16 +1,24 @@
-# This is a sample Python script.
+from flask import Flask, render_template
+import pandas as pd
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+app = Flask(__name__)
 
+@app.route("/")
+def home():
+    return render_template("home.html")
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+@app.route("/api/v1/<station>/<date>")
+def about(station, date):
+    file_name = "data_small/TG_STAID"+str(station).zfill(6)+".txt"
+    print(file_name)
+    print(station,date)
+    df = pd.read_csv(file_name,skiprows=20,parse_dates=["    DATE"])
+    temperature = df.loc[df['    DATE'] == date]['   TG'].squeeze() / 10
 
+    return {"station":station,
+            "date":date,
+            "temperature":temperature}
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    app.run(debug=True, port=5000)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
